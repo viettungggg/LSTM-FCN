@@ -6,19 +6,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.preprocessing import StandardScaler
 
-# Load Japanese Vowels dataset
 X_train, y_train = load_japanese_vowels(split="train", return_X_y=True)
 X_test, y_test = load_japanese_vowels(split="test", return_X_y=True)
 
-# Convert y_train and y_test to pandas Series
 y_train = pd.Series(y_train)
 y_test = pd.Series(y_test)
 
-# Combine train and test for preprocessing
 X_combined = pd.concat([X_train, X_test])
 y_combined = pd.concat([y_train, y_test])
 
-# Normalize each patient's data
 def normalize_data(X):
     normalized_data = []
     for _, row in X.iterrows():
@@ -31,7 +27,6 @@ def normalize_data(X):
 X_normalized = normalize_data(X_combined)
 max_length = max([len(x) for x in X_normalized])
 
-# Pad each patient's data to max_length
 def pad_data(X, max_length):
     padded_data = []
     for patient_data in X:
@@ -44,7 +39,6 @@ def pad_data(X, max_length):
 
 X_padded = pad_data(X_normalized, max_length)
 
-# Convert to nested DataFrame format
 def convert_to_nested(X, variables):
     nested_data = []
     for patient_data in X:
@@ -56,29 +50,24 @@ def convert_to_nested(X, variables):
 variables = X_combined.columns
 X_nested = convert_to_nested(X_padded, variables)
 
-# Split back into train and test sets
 X_train_padded = X_nested.iloc[:len(X_train)]
 X_test_padded = X_nested.iloc[len(X_train):]
 y_train = y_combined.iloc[:len(X_train)]
 y_test = y_combined.iloc[len(X_train):]
 
-# Initialize the classifier with best hyperparameters
 classifier = LSTMFCNClassifier(
     n_epochs=100,
     batch_size=16,
     dropout=0.8,
     kernel_sizes=(10, 5, 3),
     filter_sizes=(128, 256, 128),
-    lstm_size=32,
-    attention=False,
+    lstm_size=8,
     random_state=42,
     verbose=True,
 )
 
-# Train the model
 classifier.fit(X_train_padded, y_train)
 
-# Evaluate the model
 y_pred = classifier.predict(X_test_padded)
 accuracy = accuracy_score(y_test, y_pred)
 print(f'Accuracy: {accuracy:.2f}')

@@ -16,7 +16,6 @@ variables = {
     'RR_interval': (0.8, 0.1)
 }
 
-# Generate data and labels
 data = []
 for i in range(n_patients):
     lengths = time_resolutions[i]
@@ -28,11 +27,9 @@ for i in range(n_patients):
 data = np.concatenate(data, axis=0)
 labels = np.random.binomial(1, event_probability, n_patients)
 
-# Split the data by patients
 split_indices = np.cumsum(time_resolutions)[:-1]
 data_splits = np.split(data, split_indices)
 
-# Normalize the data for each patient
 def normalize_data(data_splits):
     normalized_splits = []
     for patient_data in data_splits:
@@ -43,7 +40,6 @@ def normalize_data(data_splits):
 data_splits = normalize_data(data_splits)
 max_length = max(time_resolutions)
 
-# Convert each patient's data into a nested DataFrame and pad to max_length
 def convert_to_nested(data_splits, labels, variables, max_length):
     nested_data = []
     for patient_data in data_splits:
